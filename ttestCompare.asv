@@ -1,0 +1,175 @@
+%This code compares espion markers with algorhithm (ABFinder.m) found. 
+%beggining half of the code is heavily based off of MasterScript.m
+
+%% Going from filename and path --> LIGHT & DARK arrays that enable group t-test comparisons
+%%Compiling handpicked markers
+%Beginning Parameters
+savefigs = 0; %save figures? 1 = yes, 0 = no. 
+savemarkers = 1; %save markers?
+LIGHTsteps = 5;
+DARKsteps = 8;
+
+%allows user to choose base directory with individual animal folders and
+%then processes this path down to a list of animals. 
+basefolder = uigetdir;
+allmembers = dir(basefolder);
+allmembers = struct2cell(allmembers);
+allnames = allmembers(1,:);
+removeindcs = find(contains(allnames,'.'));
+allnames(removeindcs) = [];
+
+filenames = {'DarkMarker', 'LightMarker'};
+ALLESPIONMarkers = cell(2,size(allnames,2));
+%ALLESPIONMarkers = {individual, adaption}
+
+%iterates through each individual folder
+for a=1:size(allnames,2)
+    folder = fullfile(basefolder, allnames{a});
+    %iterates through each Data file (Light or Dark adapteD)
+    for b=1:size(filenames,2)
+        file = [filenames{b} '.csv'];
+        ExtractMarkers
+%         if savefigs
+%             savefig(fig1,fullfile(folder, strcat(adaption, '_', animal,'.fig')));              %save .fig under folder we opened in the beginning
+%             saveas(fig1,fullfile(folder, strcat(adaption, '_', animal,'.png')));               %save .png under folder we opened in the beginning
+%             savefig(fig2,fullfile(folder, strcat(adaption, '_', animal,'_filtered','.fig')));
+%             saveas(fig2,fullfile(folder, strcat(adaption, '_', animal,'_filtered','.png')));
+%         end
+        if savemarkers
+            ALLESPIONMarkers{a,b} = markers;
+        end 
+    end
+end
+
+DARKESPION = [];
+LIGHTESPION = [];
+%pulling out ESPION alg markers. 
+for a=1:size(ALLESPIONMarkers,1) %for each animal
+    for b=1:size(ALLESPIONMarkers,2) %for each marker
+        if b==1
+            DARKESPION = cat(3, DARKESPION, ALLESPIONMarkers{a,b});
+        elseif b==2
+            LIGHTESPION = cat(3, LIGHTESPION, ALLESPIONMarkers{a,b});
+        end 
+    end
+end
+
+DARKABF = [];
+LIGHTABF = [];
+%pulling out ABFinder markers
+for a=1:size(ALLmarkers,1) %for each animal
+    for b=1:size(ALLmarkers,2) %for each marker
+        if b==1
+            DARKABF = cat(3, DARKABF, ALLmarkers{a,b});
+        elseif b==2
+            LIGHTABF = cat(3, LIGHTABF, ALLmarkers{a,b});
+        end 
+    end
+end
+
+%% T-Tests
+
+%ESPION DARK A vs ABF DARK A Voltage. Both eyes combined. 
+    %RE (RIGHT EYE)
+ttests(1).name = 'DARK ESPION A vs DARK ABF A';
+numinds = size(DARKESPION,3);
+ttests(1).RE.x.vals = reshape(DARKESPION(1,1,:,2),numinds,1);
+ttests(1).RE.y.vals = reshape(DARKABF(1,1,:,2),numinds,1);
+ttests(1).RE.x.adaption = 'DARK';ttests(1).RE.x.alg = 'ESPION'; ttests(1).RE.x.wave = 'A'; ttests(1).RE.x.eyes = 'RIGHT'; ttests(1).RE.x.unit = 'uV'; ttests(1).RE.x.mean = mean(ttests(1).RE.x.vals);
+ttests(1).RE.y.adaption = 'DARK';ttests(1).RE.y.alg = 'ABFINDER'; ttests(1).RE.y.wave = 'A'; ttests(1).RE.y.eyes = 'RIGHT'; ttests(1).RE.y.unit = 'uV'; ttests(1).RE.y.mean = mean(ttests(1).RE.y.vals);
+[ttests(1).RE.stats.result ttests(1).RE.stats.p ttests(1).RE.stats.ci ttests(1).RE.stats.stats] = ttest2(ttests(1).RE.x.vals,ttests(1).RE.y.vals);
+ttests(1).RE.figure = figure;
+hold on;
+scatter(ttests(1).RE.x.vals,zeros(size(ttests(1).RE.x.vals)));
+scatter(ttests(1).RE.y.vals,zeros(size(ttests(1).RE.y.vals)));
+ttests(1).REresult = ttests(1).RE.
+
+    %LE (LEFT EYE)
+ttests(1).LE.x.vals = reshape(DARKESPION(2,1,:,2),numinds,1);
+ttests(1).LE.y.vals = reshape(DARKABF(2,1,:,2),numinds,1);
+ttests(1).LE.x.adaption = 'DARK';ttests(1).LE.x.alg = 'ESPION'; ttests(1).LE.x.wave = 'A'; ttests(1).LE.x.eyes = 'LEFT'; ttests(1).LE.x.unit = 'uV'; ttests(1).LE.x.mean = mean(ttests(1).LE.x.vals);
+ttests(1).LE.y.adaption = 'DARK';ttests(1).LE.y.alg = 'ABFINDER'; ttests(1).LE.y.wave = 'A'; ttests(1).LE.y.eyes = 'LEFT'; ttests(1).LE.y.unit = 'uV'; ttests(1).LE.y.mean = mean(ttests(1).LE.y.vals);
+[ttests(1).LE.stats.result ttests(1).LE.stats.p ttests(1).LE.stats.ci ttests(1).LE.stats.stats] = ttest2(ttests(1).LE.x.vals,ttests(1).LE.y.vals);
+ttests(1).LE.figure = figure;
+hold on;
+scatter(ttests(1).LE.x.vals,zeros(size(ttests(1).LE.x.vals)));
+scatter(ttests(1).LE.y.vals,zeros(size(ttests(1).LE.y.vals)));
+
+%ESPION DARK B vs ABF DARK B
+%   RIGHT EYE
+ttests(2).name = 'DARK ESPION B vs DARK ABF B';
+numinds = size(DARKESPION,3);
+ttests(2).RE.x.vals = reshape(DARKESPION(1,2,:,2),numinds,1);
+ttests(2).RE.y.vals = reshape(DARKABF(1,2,:,2),numinds,1);
+ttests(2).RE.x.adaption = 'DARK';ttests(2).RE.x.alg = 'ESPION'; ttests(2).RE.x.wave = 'B'; ttests(2).RE.x.eyes = 'BOTH'; ttests(2).RE.x.unit = 'uV'; ttests(2).RE.x.mean = mean(ttests(2).RE.x.vals);
+ttests(2).RE.y.adaption = 'DARK';ttests(2).RE.y.alg = 'ABFINDER'; ttests(2).RE.y.wave = 'B'; ttests(2).RE.y.eyes = 'BOTH'; ttests(2).RE.y.unit = 'uV'; ttests(2).RE.y.mean = mean(ttests(2).RE.y.vals);
+[ttests(2).RE.stats.result ttests(2).RE.stats.p ttests(2).RE.stats.ci ttests(2).RE.stats.stats] = ttest2(ttests(2).RE.x.vals,ttests(2).RE.y.vals);
+ttests(2).RE.figure = figure;
+hold on;
+scatter(ttests(2).RE.x.vals,zeros(size(ttests(2).RE.x.vals)));
+scatter(ttests(2).RE.y.vals,zeros(size(ttests(2).RE.y.vals)));
+
+%   LEFT EYE
+numinds = size(DARKESPION,3);
+ttests(2).LE.x.vals = reshape(DARKESPION(2,2,:,2),numinds,1);
+ttests(2).LE.y.vals = reshape(DARKABF(2,2,:,2),numinds,1);
+ttests(2).LE.x.adaption = 'DARK';ttests(2).LE.x.alg = 'ESPION'; ttests(2).LE.x.wave = 'B'; ttests(2).LE.x.eyes = 'BOTH'; ttests(2).LE.x.unit = 'uV'; ttests(2).LE.x.mean = mean(ttests(2).LE.x.vals);
+ttests(2).LE.y.adaption = 'DARK';ttests(2).LE.y.alg = 'ABFINDER'; ttests(2).LE.y.wave = 'B'; ttests(2).LE.y.eyes = 'BOTH'; ttests(2).LE.y.unit = 'uV'; ttests(2).LE.y.mean = mean(ttests(2).LE.y.vals);
+[ttests(2).LE.stats.result ttests(2).LE.stats.p ttests(2).LE.stats.ci ttests(2).LE.stats.stats] = ttest2(ttests(2).LE.x.vals,ttests(2).LE.y.vals);
+ttests(2).LE.figure = figure;
+hold on;
+scatter(ttests(2).LE.x.vals,zeros(size(ttests(2).LE.x.vals)));
+scatter(ttests(2).LE.y.vals,zeros(size(ttests(2).LE.y.vals)));
+
+%ESPION LIGHT A vs ABF LIGHT A
+%   RIGHT EYE
+ttests(3).name = 'LIGHT ESPION A vs LIGHT ABF A';
+numinds = size(LIGHTESPION,3);
+ttests(3).RE.x.vals = reshape(LIGHTESPION(1,1,:,2),numinds,1);
+ttests(3).RE.y.vals = reshape(LIGHTABF(1,1,:,2),numinds,1);
+ttests(3).RE.x.adaption = 'LIGHT';ttests(3).RE.x.alg = 'ESPION'; ttests(3).RE.x.wave = 'A'; ttests(3).RE.x.eyes = 'BOTH'; ttests(3).RE.x.unit = 'uV'; ttests(3).RE.x.mean = mean(ttests(2).LE.x.vals);
+ttests(3).RE.y.adaption = 'LIGHT';ttests(3).RE.y.alg = 'ABFINDER'; ttests(3).RE.y.wave = 'A'; ttests(3).RE.y.eyes = 'BOTH'; ttests(3).RE.y.unit = 'uV'; ttests(3).RE.y.mean = mean(ttests(2).LE.y.vals);
+[ttests(3).RE.stats.result ttests(3).RE.stats.p ttests(3).RE.stats.ci ttests(3).RE.stats.stats] = ttest2(ttests(3).RE.x.vals,ttests(3).RE.y.vals);
+ttests(3).RE.figure = figure;
+hold on;
+scatter(ttests(3).RE.x.vals,ones(size(ttests(3).RE.x.vals)));
+scatter(ttests(3).RE.y.vals,zeros(size(ttests(3).RE.y.vals)));
+%   LEFT EYE
+numinds = size(LIGHTESPION,3);
+ttests(3).LE.x.vals = reshape(LIGHTESPION(2,1,:,2),numinds,1);
+ttests(3).LE.y.vals = reshape(LIGHTABF(2,1,:,2),numinds,1);
+ttests(3).LE.x.adaption = 'LIGHT';ttests(3).LE.x.alg = 'ESPION'; ttests(3).LE.x.wave = 'A'; ttests(3).LE.x.eyes = 'BOTH'; ttests(3).LE.x.unit = 'uV'; ttests(3).LE.x.mean = mean(ttests(2).LE.x.vals);
+ttests(3).LE.y.adaption = 'LIGHT';ttests(3).LE.y.alg = 'ABFINDER'; ttests(3).LE.y.wave = 'A'; ttests(3).LE.y.eyes = 'BOTH'; ttests(3).LE.y.unit = 'uV'; ttests(3).LE.y.mean = mean(ttests(2).LE.y.vals);
+[ttests(3).LE.stats.result ttests(3).LE.stats.p ttests(3).LE.stats.ci ttests(3).LE.stats.stats] = ttest2(ttests(3).LE.x.vals,ttests(3).LE.y.vals);
+ttests(3).LE.figure = figure;
+hold on;
+scatter(ttests(3).LE.x.vals,ones(size(ttests(3).LE.x.vals)));
+scatter(ttests(3).LE.y.vals,zeros(size(ttests(3).LE.y.vals)));
+
+%ESPION LIGHT B vs ABF LIGHT B
+%RIGHT EYE
+ttests(4).name = 'LIGHT ESPION B vs LIGHT ABF B';
+numinds = size(LIGHTESPION,3);
+ttests(4).RE.x.vals = reshape(LIGHTESPION(1,2,:,2),numinds,1);
+ttests(4).RE.y.vals = reshape(LIGHTABF(1,2,:,2),numinds,1);
+ttests(4).RE.x.adaption = 'LIGHT';ttests(4).RE.x.alg = 'ESPION'; ttests(4).RE.x.wave = 'B'; ttests(4).RE.x.eyes = 'BOTH'; ttests(4).RE.x.unit = 'uV'; ttests(4).RE.x.mean = mean(ttests(2).LE.x.vals);
+ttests(4).RE.y.adaption = 'LIGHT';ttests(4).RE.y.alg = 'ABFINDER'; ttests(4).RE.y.wave = 'B'; ttests(4).RE.y.eyes = 'BOTH'; ttests(4).RE.y.unit = 'uV'; ttests(4).RE.y.mean = mean(ttests(2).LE.y.vals);
+[ttests(4).RE.stats.result ttests(4).RE.stats.p ttests(4).RE.stats.ci ttests(4).RE.stats.stats] = ttest2(ttests(4).RE.x.vals,ttests(4).RE.y.vals);
+ttests(4).RE.figure = figure;
+hold on;
+scatter(ttests(4).RE.x.vals,ones(size(ttests(4).RE.x.vals)));
+scatter(ttests(4).RE.y.vals,zeros(size(ttests(4).RE.y.vals)));
+%LEFT EYE
+numinds = size(LIGHTESPION,3);
+ttests(4).LE.x.vals = reshape(LIGHTESPION(2,2,:,2),numinds,1);
+ttests(4).LE.y.vals = reshape(LIGHTABF(2,2,:,2),numinds,1);
+ttests(4).LE.x.adaption = 'LIGHT';ttests(4).LE.x.alg = 'ESPION'; ttests(4).LE.x.wave = 'B'; ttests(4).LE.x.eyes = 'BOTH'; ttests(4).LE.x.unit = 'uV'; ttests(4).LE.x.mean = mean(ttests(2).LE.x.vals);
+ttests(4).LE.y.adaption = 'LIGHT';ttests(4).LE.y.alg = 'ABFINDER'; ttests(4).LE.y.wave = 'B'; ttests(4).LE.y.eyes = 'BOTH'; ttests(4).LE.y.unit = 'uV'; ttests(4).LE.y.mean = mean(ttests(2).LE.y.vals);
+[ttests(4).LE.stats.result ttests(4).LE.stats.p ttests(4).LE.stats.ci ttests(4).LE.stats.stats] = ttest2(ttests(4).LE.x.vals,ttests(4).LE.y.vals);
+ttests(4).LE.figure = figure;
+hold on;
+scatter(ttests(4).LE.x.vals,ones(size(ttests(4).LE.x.vals)));
+scatter(ttests(4).LE.y.vals,zeros(size(ttests(4).LE.y.vals)));
+
+
+

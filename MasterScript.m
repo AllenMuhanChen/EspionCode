@@ -1,0 +1,46 @@
+clear all;
+
+%Beginning Parameters
+savefigs = 0; %save figures? 1 = yes, 0 = no. 
+savemarkers = 1; %save markers?
+
+%allows user to choose base directory with individual animal folders and
+%then processes this path down to a list of animals. 
+basefolder = uigetdir;                                  %allowing user to choose the basefolder (the folder the script will iterate through to automize individual data analysis)
+allmembers = dir(basefolder);                           %declaring allmembers as a struct that contains info about each folder in the basefolder
+allmembers = struct2cell(allmembers);                   %converting the struct to a cell for easier manipulation
+allnames = allmembers(1,:);                             %defining allnames as the cell of all of the folder names under the basefolder
+removeindcs = find(contains(allnames,'.'));             %finding the indices of '.' and '..' which are hidden members that we need to remove
+allnames(removeindcs) = [];                             %using those indices to remove them. 
+
+filenames = {'DarkData', 'LightData'};                  %declaring what file names we will be using
+
+%Initializing structures to hold saved data
+ALLmarkers = cell(2,size(allnames,2));                  %initializing the cell which will hold marker info for ALL of our individuals.
+%ALLmarkers = {animal#, adaption}
+%animal: 
+%       
+%adaption: 1 = Dark
+%          2 = Light
+
+
+for a=1:size(allnames,2)                                                                       %iterates through each individual folder
+    folder = fullfile(basefolder, allnames{a});                                                %defining folder variable which ExtractTraces.m will use to select an individual animal 
+    
+    for b=1:size(filenames,2)                                                                  %iterates through each Data file (Light or Dark adapteD)
+        file = [filenames{b} '.csv'];                                                          %defining file variable which ExtractTraces.m will combine with 'folder' to access the data of animal it selected 
+        ExtractTraces                                                                          %running ExtractTraces.m
+        ABFinder                                                                               %running ABFinder.m
+        if savefigs                                                                            %if savefigs was set to 1, then save figs as the scripts are run.
+            savefig(fig1,fullfile(folder, strcat(adaption, '_', animal,'.fig')));              %save .fig under folder we opened in the beginning
+            saveas(fig1,fullfile(folder, strcat(adaption, '_', animal,'.png')));               %save .png under folder we opened in the beginning
+            savefig(fig2,fullfile(folder, strcat(adaption, '_', animal,'_filtered','.fig')));
+            saveas(fig2,fullfile(folder, strcat(adaption, '_', animal,'_filtered','.png')));
+        end
+        if savemarkers                                                                         %if savemarkers was set to 1, then save individual marker arrays into a cell that holds marker data for all indivs
+            ALLmarkers{a,b} = markers;
+        end 
+    end
+end
+
+
