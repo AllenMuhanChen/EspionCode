@@ -5,63 +5,63 @@
 %% Going from filename and path --> LIGHT & DARK arrays that enable group t-test comparisons
 %%Compiling handpicked markers
 %Beginning Parameters
-savefigs = 0; %save figures? 1 = yes, 0 = no. 
-savemarkers = 1; %save markers?
-LIGHTsteps = 5;
-DARKsteps = 8;
+savefigs = 0;    %save figures? 1 = yes, 0 = no. 
+savemarkers = 1; %save marker information?
+LIGHTsteps = 5;  %how many steps do light adapted animals have?
+DARKsteps = 8;   %how many steps do dark adapted animals have?
 
 %allows user to choose base directory with individual animal folders and
 %then processes this path down to a list of animals. 
-basefolder = uigetdir;
-allmembers = dir(basefolder);
-allmembers = struct2cell(allmembers);
-allnames = allmembers(1,:);
-removeindcs = find(contains(allnames,'.'));
-allnames(removeindcs) = [];
+basefolder = uigetdir;                                  %allowing user to choose the basefolder (the folder the script will iterate through to automize individual data analysis)
+allmembers = dir(basefolder);                           %declaring allmembers as a struct that contains info about each folder in the basefolder
+allmembers = struct2cell(allmembers);                   %converting the struct to a cell for easier manipulation
+allnames = allmembers(1,:);                             %defining allnames as the cell of all of the folder names under the basefolder
+removeindcs = find(contains(allnames,'.'));             %finding the indices of '.' and '..' which are hidden members that we need to remove
+allnames(removeindcs) = [];                             %using those indices to remove them. 
 
-filenames = {'DarkMarker', 'LightMarker'};
-ALLESPIONMarkers = cell(2,size(allnames,2));
+filenames = {'DarkMarker', 'LightMarker'};              %declaring what file names we will be using
+ALLESPIONMarkers = cell(2,size(allnames,2));            %declaring ALLESPIONMarkers which is a cell that will hold ESPION markers from all inds if savemarkers == 1
 %ALLESPIONMarkers = {individual, adaption}
 
 %iterates through each individual folder
-for a=1:size(allnames,2)
-    folder = fullfile(basefolder, allnames{a});
+for a=1:size(allnames,2)                                    %for each indvididual
+    folder = fullfile(basefolder, allnames{a});             %setting the folder ExtractMarkers will use 
     %iterates through each Data file (Light or Dark adapteD)
-    for b=1:size(filenames,2)
-        file = [filenames{b} '.csv'];
-        ExtractMarkers
+    for b=1:size(filenames,2)                               %for each type of file
+        file = [filenames{b} '.csv'];                       %setting the file ExtractMarkers will use
+        ExtractMarkers                                      %running ExtractMarkers.m
 %         if savefigs
 %             savefig(fig1,fullfile(folder, strcat(adaption, '_', animal,'.fig')));              %save .fig under folder we opened in the beginning
 %             saveas(fig1,fullfile(folder, strcat(adaption, '_', animal,'.png')));               %save .png under folder we opened in the beginning
 %             savefig(fig2,fullfile(folder, strcat(adaption, '_', animal,'_filtered','.fig')));
 %             saveas(fig2,fullfile(folder, strcat(adaption, '_', animal,'_filtered','.png')));
 %         end
-        if savemarkers
-            ALLESPIONMarkers{a,b} = markers;
+        if savemarkers                                              %if savemarkers == 1, save all ESPION markers from all individuals into ALLESPIONMarkers
+            ALLESPIONMarkers{a,b} = markers;                        %declaring ALLESPIONMarkers
         end 
     end
 end
 
-DARKESPION = [];
-LIGHTESPION = [];
-%pulling out ESPION alg markers. 
-for a=1:size(ALLESPIONMarkers,1) %for each animal
-    for b=1:size(ALLESPIONMarkers,2) %for each marker
-        if b==1
-            DARKESPION = cat(3, DARKESPION, ALLESPIONMarkers{a,b});
+DARKESPION = [];                                                    %declaring DARKESPION, array that will hold Dark adapted espion markers for all individuals for ttest
+LIGHTESPION = [];                                                   %declaring LIGHTESPION, array that will hold Light adapted espion markers for all individuals for ttest
+%pulling out ESPION alg markers 
+for a=1:size(ALLESPIONMarkers,1)                                    %for each animal
+    for b=1:size(ALLESPIONMarkers,2)                                %for each marker
+        if b==1                                                     %if b==1 (Dark adapted)
+            DARKESPION = cat(3, DARKESPION, ALLESPIONMarkers{a,b}); %concatenate marker data from ALLESPIONMarkers into DARKESPION
         elseif b==2
             LIGHTESPION = cat(3, LIGHTESPION, ALLESPIONMarkers{a,b});
         end 
     end
 end
 
-DARKABF = [];
+DARKABF = [];                                                       %declaring DARKABF, array that will hold Dark adapted ABFinder.m markers for all individuals for ttest
 LIGHTABF = [];
 %pulling out ABFinder markers
-for a=1:size(ALLmarkers,1) %for each animal
-    for b=1:size(ALLmarkers,2) %for each marker
-        if b==1
-            DARKABF = cat(3, DARKABF, ALLmarkers{a,b});
+for a=1:size(ALLmarkers,1)                                          %for each animal
+    for b=1:size(ALLmarkers,2)                                      %for each marker
+        if b==1                                                     %if b==1 (Dark adapteD)
+            DARKABF = cat(3, DARKABF, ALLmarkers{a,b});             %concatenate marker data from ALLmarkers into DARKABF
         elseif b==2
             LIGHTABF = cat(3, LIGHTABF, ALLmarkers{a,b});
         end 
@@ -70,7 +70,8 @@ end
 
 %% T-Tests
 
-%ESPION DARK A vs ABF DARK A Voltage. Both eyes combined. 
+%ESPION DARK A vs ABF DARK A Voltage. 
+%   creating ttests struct to hold t-test parameters and results. Each row ttests represents a different pair of ttests. Each pair consists of one t-test on LE and another on RE eye.  
     %RE (RIGHT EYE)
 ttests(1).name = 'DARK ESPION A vs DARK ABF A';
 numinds = size(DARKESPION,3);
