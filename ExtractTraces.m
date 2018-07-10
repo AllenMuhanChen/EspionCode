@@ -13,14 +13,15 @@
 %       on whether it is light or dark adapted. 
 %   This code as it is will only process 'RHO-DTR' labelled animals. For
 %       other groups, find this line of code and change it: indx = find(contains(folderseparated,'RHO-DTR'));
+%   This code is meant to be called by MasterScript.m. 
 
-%clear all;                                              %clearing all vars in workspace so nothing from previously ran code interrupts this script
 
-%Loading and Manipulating Data Table to be a usable form
+%UNCOMMENT THESE to run without MasterScript.m
 %[file, folder] = uigetfile('*.csv');                   %load file from UI. This is commented out because MasterScript.m loads the files automatically
 %                                                       if you're not using the masterscript, uncomment this line. 
-
-
+%savefigs = 0;                                          %save figs if == 1.
+                                                        %MasterScript.m declares this before ExtractTraces.m is ran. 
+%Loading and Manipulating Data Table to be a usable form
 T = readtable(fullfile(folder,file));                   %extract .csv into table data structure
 T(:,end) = [];                                          %removing last column of table because it is empty and causes errors
 contents = T(:,1:6);                                    %calling the first 6 columns of the table the "contents" table. 
@@ -74,8 +75,10 @@ end
 xlabel('Time (ms)');                                                  %setting x-axis label
 suptitle([animal ': ' adaption ' Adapted']);                          %sets a super title that goes over all of the subplots
 set(gcf, 'position', [0 0 560 1080]);                                 %sets position of the plot generated [x y w h]. (x,y): bottom left corner. w: width. h: height. all in pixels
-%savefig(fig1,fullfile(folder, strcat(adaption, '_', animal,'.fig')))  %save .fig under folder we opened in the beginning
-%saveas(fig1,fullfile(folder, strcat(adaption, '_', animal,'.png')))   %save .png under folder we opened in the beginning
+if savefigs
+    savefig(fig1,fullfile(folder, strcat(adaption, '_', animal,'.fig')))  %save .fig under folder we opened in the beginning
+    saveas(fig1,fullfile(folder, strcat(adaption, '_', animal,'.png')))   %save .png under folder we opened in the beginning
+end
  %% Plotting 2: One panel per eye. all steps on each panel
 % lighttrace2 = figure;
 % hold on;
@@ -117,8 +120,12 @@ end
 xlabel('Time (ms)');
 suptitle([animal ': ' adaption ' Adapted. Filtered at ' int2str(fpass) ' Hz']);
 set(gcf, 'position', [560 0 560 1080]);
-%savefig(fig2,fullfile(folder, strcat(adaption, '_', animal,'_filtered','.fig')))
-%saveas(fig2,fullfile(folder, strcat(adaption, '_', animal,'_filtered','.png')))
+if savefigs
+    savefig(fig2,fullfile(folder, strcat(adaption, '_', animal,'_filtered','.fig')))
+    saveas(fig2,fullfile(folder, strcat(adaption, '_', animal,'_filtered','.png')))
+end
+
+
 % lighttrace4 = figure;
 % hold on;
 % eyes = {"Right Eye" "Left Eye"};

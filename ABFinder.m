@@ -77,7 +77,7 @@ fig2axes = flipud(fig2axes);
 for i = 1:steps                                         %for each step
     %plotting a waves
     for j = 1:2                                         %for each eye
-        lines = fig1axes(i).Children;                   %declare lines array which holds the "line" object we've spent so much work getting to
+        lines = fig1axes(i).Children;                   %declare lines array which holds the "line" objects we've spent so much work getting to
         lines = flipud(lines);                          %lines array is also backwards, so we flip it
         lines(j).MarkerIndices = markersindcs(j,1,i);   %'MarkerIndices' are the indices of the points we want a marker on. We set this to position of a wave we found earlier.
         lines(j).Marker = 'o';

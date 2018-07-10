@@ -16,7 +16,9 @@ allnames(removeindcs) = [];                             %using those indices to 
 filenames = {'DarkData', 'LightData'};                  %declaring what file names we will be using
 
 %Initializing structures to hold saved data
-ALLmarkers = cell(2,size(allnames,2));                  %initializing the cell which will hold marker info for ALL of our individuals.
+if savemarkers
+    ALLmarkers = cell(2,size(allnames,2));                  %initializing the cell which will hold marker info for ALL of our individuals.
+end
 %ALLmarkers = {animal#, adaption}
 %animal: 
 %       
@@ -38,7 +40,13 @@ for a=1:size(allnames,2)                                                        
             saveas(fig2,fullfile(folder, strcat(adaption, '_', animal,'_filtered','.png')));
         end
         if savemarkers                                                                         %if savemarkers was set to 1, then save individual marker arrays into a cell that holds marker data for all indivs
-            ALLmarkers{a,b} = markers;
+            %ALLmarkers{a,b} = markers; old method of storing group data
+            ALLDATA(a).Name = animal;
+            if b==1
+                ALLDATA(a).Dark = markers;
+            elseif b==2
+                ALLDATA(a).Light = markers;
+            end    
         end 
     end
 end

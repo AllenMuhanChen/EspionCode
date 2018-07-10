@@ -1,3 +1,6 @@
+%THIS CODE IS CURRENTLY NOT BEING USED AND MAY BE OUTDATED DUE TO CHANGES
+%TO SCRIPT THAT SHOULD BE RUN BEFORE THIS ONE 
+
 %This code compares espion markers with algorhithm (ABFinder.m) found. 
 %beggining half of the code is heavily based off of MasterScript.m. Should
 %be ran after MasterScript.m
